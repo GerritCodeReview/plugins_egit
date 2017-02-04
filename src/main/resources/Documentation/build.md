@@ -1,21 +1,55 @@
 Build
 =====
 
-This plugin is built with Buck.
-Clone or link this plugin to the plugins directory of Gerrit tree
-and issue the command:
+This plugin is built using Bazel.
+Only the Gerrit in-tree build is supported.
+
+Clone or link this plugin to the plugins directory of Gerrit's source
+tree.
 
 ```
-  buck build plugins/egit
+  git clone https://gerrit.googlesource.com/gerrit
+  git clone https://gerrit.googlesource.com/plugins/@PLUGIN@
+  cd gerrit/plugins
+  ln -s ../../@PLUGIN@ .
+```
+
+Put the external dependency Bazel build file into the Gerrit /plugins
+directory, replacing the existing empty one.
+
+```
+  cd gerrit/plugins
+  rm external_plugin_deps.bzl
+  ln -s @PLUGIN@/external_plugin_deps.bzl .
+```
+
+From Gerrit source tree issue the command:
+
+```
+  bazel build plugins/@PLUGIN@
 ```
 
 The output is created in
 
 ```
-  buck-out/gen/plugins/egit/egit.jar
+  bazel-genfiles/plugins/@PLUGIN@/@PLUGIN@.jar
 ```
 
-This project can be imported into the Eclipse IDE:
+To execute the tests run:
+
+```
+  bazel test plugins/@PLUGIN@:@PLUGIN@_tests
+```
+
+or filtering using the comma separated tags:
+
+````
+  bazel test --test_tag_filters=@PLUGIN@ //...
+````
+
+This project can be imported into the Eclipse IDE.
+Add the plugin name to the `CUSTOM_PLUGINS` set in
+Gerrit core in `tools/bzl/plugins.bzl`, and execute:
 
 ```
   ./tools/eclipse/project.py
@@ -31,4 +65,4 @@ plugin.
 
 When building with Maven, the Gerrit Plugin API must be available.
 How to build the Gerrit Plugin API is described in the [Gerrit
-documentation](../../../Documentation/dev-buck.html#_extension_and_plugin_api_jar_files).
+documentation](../../../Documentation/dev-bazel.html#_extension_and_plugin_api_jar_files).
